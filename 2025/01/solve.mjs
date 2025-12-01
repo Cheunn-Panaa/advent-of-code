@@ -1,28 +1,43 @@
 import { readFileSync } from 'fs';
 
+function countZeroCrossings(currentPos, distance, isLeft) {
+  if (currentPos === 0) {
+    return Math.floor(distance / 100);
+  }
+  
+  const distanceToZero = isLeft ? currentPos : 100 - currentPos;
+  
+  if (distance < distanceToZero) {
+    return 0;
+  }
+  
+  const remainingAfterFirstZero = distance - distanceToZero;
+  return 1 + Math.floor(remainingAfterFirstZero / 100);
+}
+
 function puzzleResolver(inputFile) {
   const input = readFileSync(inputFile, 'utf8').trim().split('\n');
   
   let position = 50;
-  let resetCount = 0;
+  let totalCrossings = 0;
   
   for (const line of input) {
     const direction = line[0];
     const distance = parseInt(line.slice(1));
+    const isLeft = direction === 'L';
     
-    if (direction === 'L') {
+    totalCrossings += countZeroCrossings(position, distance, isLeft);
+    
+    // Update position
+    if (isLeft) {
       position = (position - distance) % 100;
       if (position < 0) position += 100;
-    } else if (direction === 'R') {
+    } else {
       position = (position + distance) % 100;
-    }
-    
-    if (position === 0) {
-      resetCount++;
     }
   }
   
-  return resetCount;
+  return totalCrossings;
 };
 
 // Check if input file is provided
